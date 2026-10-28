@@ -61,7 +61,7 @@ def adjacency_matrix_from_atomic_coordinates(
     except ImportError as exc:
         raise ImportError(
             "xyzgraph is required for the xyzgraph graph builder. "
-            "Install with `pip install spyrmsd[xyzgraph]`."
+            "Use Python 3.10 or newer and install with `pip install spyrmsd[xyzgraph]`."
         ) from exc
 
     atoms = _atoms_from_arrays(aprops, coordinates)

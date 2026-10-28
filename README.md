@@ -82,7 +82,7 @@ One of the following graph libraries is required:
 > [!NOTE]
 > `spyrmsd` uses the following priority when multiple graph libraries are present: [graph-tool], [rustworkx], [NetworkX]. *This order might change. Use `set_backend` to ensure you are always using the same backend, if needed.*
 
-The xyzgraph adapter is optional:
+The xyzgraph adapter is optional and requires Python 3.10 or newer:
 * [xyzgraph](https://github.com/aligfellow/xyzgraph) (install with `pip install spyrmsd[xyzgraph]`)
 
 #### Standalone Tool

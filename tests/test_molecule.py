@@ -175,3 +175,35 @@ def test_from_rdmol(molpath, adjacency):
             with pytest.raises(AttributeError):
                 # No adjacency_matrix attribute
                 mol.adjacency_matrix
+
+
+@pytest.mark.parametrize("provided_adjacency", [False, True])
+def test_graph_builder_switch_preserves_only_explicit_adjacency(
+    monkeypatch, provided_adjacency
+):
+    from spyrmsd.adapters import xyzgraph
+
+    initial = graph.get_graph_builder()
+    try:
+        graph.set_graph_builder("simple")
+        adjacency = np.zeros((2, 2), dtype=int) if provided_adjacency else None
+        mol = molecule.Molecule([6, 6], [[0, 0, 0], [10, 0, 0]], adjacency)
+        if provided_adjacency:
+            first = mol.to_graph()
+        else:
+            with pytest.warns(UserWarning, match="bond perception"):
+                first = mol.to_graph()
+        assert graph.num_edges(first) == 0
+        monkeypatch.setattr(
+            xyzgraph,
+            "adjacency_matrix_from_atomic_coordinates",
+            lambda *args: np.array([[0, 1], [1, 0]]),
+        )
+        graph.set_graph_builder("xyzgraph")
+        assert graph.num_edges(mol.to_graph()) == (0 if provided_adjacency else 1)
+        assert mol.adjacency_matrix[0, 1] == (0 if provided_adjacency else 1)
+        graph.set_graph_builder("simple")
+        assert graph.num_edges(mol.to_graph()) == 0
+        assert mol.adjacency_matrix[0, 1] == 0
+    finally:
+        graph.set_graph_builder(initial)

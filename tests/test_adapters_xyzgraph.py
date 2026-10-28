@@ -118,10 +118,7 @@ def test_xyzgraph_adjacency_integrates_with_symmrmsd(fake_xyzgraph):
 
 
 def test_xyzgraph_adjacency_live_smoke():
-    try:
-        __import__("xyzgraph")
-    except Exception:
-        pytest.skip("xyzgraph is not importable in this environment")
+    pytest.importorskip("xyzgraph")
 
     atomicnums = np.array([1, 1])
     coordinates = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 0.7]])

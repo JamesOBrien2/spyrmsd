@@ -49,6 +49,8 @@ class Molecule:
         if adjacency_matrix is not None:
             self.adjacency_matrix: np.ndarray = np.asarray(adjacency_matrix, dtype=int)
 
+        self._adjacency_builder: Optional[str] = None
+
         # Molecular graph
         self.G: Dict[str, object] = {}
 
@@ -175,12 +177,21 @@ class Molecule:
 
         Notes
         -----
-        If the molecule does not have an associated adjacency matrix, a simple
-        bond perception is used.
+        If the molecule does not have an associated adjacency matrix, bond
+        perception uses the selected graph builder.
 
-        The molecular graph is cached per backend.
+        The molecular graph is cached per backend; inferred topology is rebuilt
+        when the selected graph builder changes.
         """
         _current_backend = graph._current_backend
+
+        builder = graph.get_graph_builder()
+        if self._adjacency_builder is not None and self._adjacency_builder != builder:
+            self.adjacency_matrix = graph.adjacency_matrix_from_atomic_coordinates(
+                self.atomicnums, self.coordinates
+            )
+            self._adjacency_builder = builder
+            self.G = {}
 
         if _current_backend not in self.G.keys():
             try:
@@ -193,11 +204,11 @@ class Molecule:
                     + "Using bond perception..."
                 )
 
-                # Automatic bond perception (with very simple rule)
                 self.adjacency_matrix = graph.adjacency_matrix_from_atomic_coordinates(
                     self.atomicnums, self.coordinates
                 )
 
+                self._adjacency_builder = builder
                 self.G[_current_backend] = graph.graph_from_adjacency_matrix(
                     self.adjacency_matrix, self.atomicnums
                 )

@@ -4,6 +4,9 @@ xyzgraph Adapter
 ``spyrmsd`` can use `xyzgraph <https://github.com/aligfellow/xyzgraph>`_ as an
 optional adjacency matrix builder for molecular graph construction.
 
+The optional builder requires Python 3.10 or newer. On Python 3.9, use the
+built-in ``simple`` builder or upgrade Python before installing the extra.
+
 Install the optional dependency with:
 
 .. code-block:: bash
@@ -37,4 +40,4 @@ Example
 
 .. note::
    The default graph builder remains the built-in ``simple`` one,
-   based on distance and VdW radii. The ``xyzgraph`` adapter is opt-in.
+   based on distance and covalent radii. The ``xyzgraph`` adapter is opt-in.

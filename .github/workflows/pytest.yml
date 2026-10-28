@@ -70,3 +70,18 @@ jobs:
         file: ./coverage.xml
         flags: unittests
         name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}-${{ matrix.chemlib }}-${{ matrix.graphlib }}
+
+  xyzgraph:
+    name: Optional xyzgraph integration
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-python@v6
+      with:
+        python-version: "3.12"
+    - run: python -m pip install '.[test,rdkit,xyzgraph]'
+    - run: python -c "from xyzgraph import build_graph"
+    - run: pytest -v tests/test_adapters_xyzgraph.py tests/test_cli_graph_builder.py tests/test_molecule.py

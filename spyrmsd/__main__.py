@@ -83,23 +83,24 @@ def main() -> int:
 
     try:
         graph.set_graph_builder(args.graph_builder)
-        ref = molecule.Molecule(
-            ref.atomicnums,
-            ref.coordinates,
-            adjacency_matrix=graph.adjacency_matrix_from_atomic_coordinates(
-                ref.atomicnums, ref.coordinates
-            ),
-        )
-        mols = [
-            molecule.Molecule(
-                mol.atomicnums,
-                mol.coordinates,
+        if args.graph_builder == "xyzgraph":
+            ref = molecule.Molecule(
+                ref.atomicnums,
+                ref.coordinates,
                 adjacency_matrix=graph.adjacency_matrix_from_atomic_coordinates(
-                    mol.atomicnums, mol.coordinates
+                    ref.atomicnums, ref.coordinates
                 ),
             )
-            for mol in mols
-        ]
+            mols = [
+                molecule.Molecule(
+                    mol.atomicnums,
+                    mol.coordinates,
+                    adjacency_matrix=graph.adjacency_matrix_from_atomic_coordinates(
+                        mol.atomicnums, mol.coordinates
+                    ),
+                )
+                for mol in mols
+            ]
     except (ImportError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return -1

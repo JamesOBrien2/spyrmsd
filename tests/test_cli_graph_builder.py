@@ -81,6 +81,26 @@ def test_main_default_path_uses_io(monkeypatch, capsys):
     assert capsys.readouterr().out.strip().splitlines() == ["0.10000", "0.20000"]
 
 
+@pytest.mark.parametrize("builder_args", [[], ["--graph-builder", "simple"]])
+def test_main_preserves_file_connectivity(monkeypatch, builder_args):
+    from spyrmsd.molecule import Molecule
+
+    loaded = Molecule([6, 6], [[0, 0, 0], [10, 0, 0]], [[0, 1], [1, 0]])
+    monkeypatch.setattr(cli.importlib.util, "find_spec", lambda name: object())
+    monkeypatch.setattr(cli.io, "loadmol", lambda path: loaded)
+    monkeypatch.setattr(cli.io, "loadallmols", lambda path: [loaded])
+    seen = []
+
+    def rmsd_from_file(ref, mols, **kwargs):
+        seen.extend([ref.adjacency_matrix, mols[0].adjacency_matrix])
+        return [0.0]
+
+    monkeypatch.setattr(cli, "rmsdwrapper", rmsd_from_file)
+    assert run_cli(monkeypatch, *builder_args, "ref.sdf", "poses.sdf") == 0
+    for adjacency in seen:
+        np.testing.assert_array_equal(adjacency, [[0, 1], [1, 0]])
+
+
 def test_main_sets_graph_backend(monkeypatch):
     fake_mol = types.SimpleNamespace(
         atomicnums=np.array([1]),
